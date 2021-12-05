@@ -20,18 +20,46 @@ export class ProductListComponent implements OnInit, AfterViewInit {
     filteredProducts: IProduct[];
     products: IProduct[];
 
+    private _sub$: Subscription;
+
+
     @ViewChild('filterElement') filterElementRef: ElementRef;
-    @ViewChild(NgModel) filterInput: NgModel;
+    // @ViewChild(NgModel) filterInput: NgModel;
+    private _filterInput: NgModel;
+
+    get filterInput(): NgModel {
+      return this._filterInput;
+    }
+
+    @ViewChild(NgModel)
+    set filterInput(value: NgModel) {
+      this._filterInput = value;
+      console.log('filterInput before: ', this.filterInput);
+      if (this.filterInput && !this._sub$) {
+        console.log('Subscribing: ', this.filterInput);
+        this._sub$ = this.filterInput.valueChanges.subscribe(
+          () => {
+            this.performFilter(this.listFilter);
+            console.log('Perform the filter: ', this.filterInput);
+
+          }
+        );
+      }
+      if (this.filterInput) {
+        this.filterElementRef.nativeElement.focus();
+      }
+    }
+
 
     constructor(private productService: ProductService) {}
 
     ngAfterViewInit(): void {
-        this.filterInput.valueChanges.subscribe(
-          () => {
-            this.performFilter(this.listFilter);
-          }
-        );
-        this.filterElementRef.nativeElement.focus();
+        // this.filterInput.valueChanges.subscribe(
+        //   () => {
+        //     this.performFilter(this.listFilter);
+        //   }
+        // );
+
     }
 
     ngOnInit(): void {
